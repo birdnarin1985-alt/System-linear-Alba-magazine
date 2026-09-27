@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>THE GRIMOIRE OF RETAINING WALLS - Magical BIM Magazine</title>
+  <style>
+    :root {
+      --bg-grimoire: #05070c;
+      --parchment: #0d121f;
+      --border-gold: #d97706;
+      --glow-gold: #f59e0b;
+      --magic-cyan: #38bdf8;
+      --text-main: #f3f4f6;
+      --text-muted: #94a3b8;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at center, #0f172a 0%, var(--bg-grimoire) 100%);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Courier New", monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 14px 10px 40px 10px;
+      overflow-x: hidden;
+    }
+
+    .grimoire-header {
+      width: 100%;
+      max-width: 560px;
+      padding: 14px 18px;
+      background: linear-gradient(135deg, #171c28 0%, #090d16 100%);
+      border: 2px solid var(--border-gold);
+      border-radius: var(--radius) var(--radius) 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: 0 0 25px rgba(217, 119, 6, 0.25);
+      position: relative;
+    }
+    .grimoire-header::after {
+      content: '⚡ MAGICAL SPREAD';
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      font-size: 7px;
+      color: var(--glow-gold);
+      font-weight: 900;
+      letter-spacing: 2px;
+      border: 1px solid var(--border-gold);
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: rgba(217, 119, 6, 0.1);
+    }
+    .mag-tag { font-size: 7px; letter-spacing: 2px; color: var(--glow-gold); font-weight: 900; text-transform: uppercase; }
+    .mag-title { font-size: 15px; font-weight: bold; color: #fff; font-family: serif; }
+    .mag-subtitle { font-size: 7.5px; color: var(--text-muted); font-style: italic; }
+
+    .app-container {
+      width: 100%;
+      max-width: 560px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: var(--parchment);
+      border: 2px solid var(--border-gold);
+      border-top: none;
+      padding: 12px;
+      border-radius: 0 0 var(--radius) var(--radius);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+    }
+
+    /* Magazine Spread Article Box (ลอยข้างบทความ) */
+    .mag-article-spread {
+      background: rgba(3, 7, 18, 0.7);
+      border: 1px solid #1e293b;
+      border-left: 3px solid var(--magic-cyan);
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .article-title { font-size: 8.5px; color: var(--magic-cyan); font-weight: bold; font-family: monospace; text-transform: uppercase; }
+    .article-desc { font-size: 7.5px; color: var(--text-muted); line-height: 1.4; }
+
+    /* Spell Toggle Buttons */
+    .spell-box {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+    .spell-btn {
+      background: #030712;
+      border: 1px solid #1e293b;
+      color: var(--text-muted);
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 8px;
+      font-weight: bold;
+      font-family: monospace;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .spell-btn.active {
+      border-color: var(--glow-gold);
+      color: #fff;
+      background: rgba(245, 158, 11, 0.15);
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+    }
+
+    /* Floating Viewport Layout with Side Controls */
+    .viewport-side-layout {
+      display: grid;
+      grid-template-columns: 1fr 130px;
+      gap: 8px;
+    }
+
+    .cad-viewport {
+      width: 100%;
+      aspect-ratio: 1.25 / 1;
+      background: radial-gradient(circle at center, #1e1b4b 0%, #030712 100%);
+      border: 1px solid #334155;
+      border-radius: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    svg#cadStage { width: 100%; height: 100%; display: block; }
+
+    .spell-hud {
+      position: absolute;
+      top: 6px; left: 6px;
+      background: rgba(3, 7, 18, 0.85);
+      border: 1px solid #334155;
+      border-left: 2px solid var(--glow-gold);
+      border-radius: 3px;
+      padding: 4px 6px;
+      font-size: 6.5px;
+      font-family: monospace;
+    }
+
+    /* Side Control Panel (สไลเดอร์ด้านข้างแบบล้ำๆ) */
+    .side-control-panel {
+      background: #030712;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      gap: 6px;
+    }
+    .side-ctrl-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .side-ctrl-label {
+      font-size: 7px;
+      color: var(--text-muted);
+      font-family: monospace;
+      display: flex;
+      justify-content: space-between;
+    }
+    .side-ctrl-label span { color: var(--magic-cyan); font-weight: bold; }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 14px;
+      background: transparent;
+      margin: 0;
+      cursor: pointer;
+    }
+    input[type=range]:focus { outline: none; }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 4px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 2px;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 14px;
+      width: 14px;
+      border-radius: 50%;
+      background: var(--glow-gold);
+      box-shadow: 0 0 8px var(--glow-gold);
+      cursor: pointer;
+      margin-top: -5px;
+      border: 2px solid #fff;
+    }
+
+    /* Golden BOQ Card */
+    .boq-magical-card {
+      background: linear-gradient(135deg, #090d16 0%, #111827 100%);
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .boq-magical-title {
+      font-size: 8px;
+      color: var(--glow-gold);
+      font-family: monospace;
+      font-weight: bold;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+    }
+    .boq-row-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+    }
+    .boq-cell {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 6px 4px;
+      text-align: center;
+    }
+    .boq-lbl { font-size: 6px; color: var(--text-muted); font-family: monospace; }
+    .boq-num { font-size: 10.5px; font-weight: bold; color: #fff; font-family: monospace; margin-top: 2px; }
+  </style>
+</head>
+<body>
+
+  <div class="grimoire-header">
+    <span class="mag-tag">⚡ Interactive BIM Magazine</span>
+    <span class="mag-title">The Grimoire of Retaining Walls / คัมภีร์ปราบแรงดันดิน</span>
+    <span class="mag-subtitle">Bilingual Engineering Magic for Master Builders & Students (ไทย / English)</span>
+  </div>
+
+  <div class="app-container">
+    
+    <!-- บทความลอยตัวฝั่งซ้ายคู่กับโมเดล -->
+    <div class="mag-article-spread">
+      <div class="article-title">📖 Chapter I: Spatial Matrix & Floating Model</div>
+      <div class="article-desc">
+        วิเคราะห์แรงดันดินด้วยระบบพิกัด Linear Algebra และปรับแต่งขนาดพารามิเตอร์แบบเรียลไทม์ผ่านแผงควบคุมด้านข้าง
+      </div>
+    </div>
+
+    <div class="spell-box">
+      <div class="spell-btn active" id="btnConc" onclick="toggleSpell('concrete')">🧊 [SPELL 1] Smart Solid / ปูนใส</div>
+      <div class="spell-btn active" id="btnRebar" onclick="toggleSpell('rebar')">⛓️ [SPELL 2] Rebar Grid / กรงเหล็ก</div>
+    </div>
+
+    <!-- เลย์เอาต์ใหม่: โมเดลลอยอยู่ฝั่งซ้าย แผงสไลเดอร์ควบคุมอยู่ด้านข้าง -->
+    <div class="viewport-side-layout">
+      <div class="cad-viewport">
+        <div class="spell-hud">
+          <div style="color:var(--glow-gold); font-size:5.5px;">STATUS</div>
+          <div style="color:#fff; font-weight:bold;">Floating Spread Active</div>
+        </div>
+        <svg id="cadStage" viewBox="0 0 400 320">
+          <defs>
+            <linearGradient id="magicGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#1e1b4b" stop-opacity="0.2"/>
+            </linearGradient>
+            <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8"/>
+            </marker>
+          </defs>
+          <g id="stageContent"></g>
+          <g id="stageDimensions"></g>
+        </svg>
+      </div>
+
+      <!-- แผงสไลเดอร์ควบคุมด้านข้าง (Side Control Panel) -->
+      <div class="side-control-panel">
+        <div class="side-ctrl-group">
+          <div class="side-ctrl-label">
+            <span>Height (H)</span>
+            <span id="paramValH">1.5m</span>
+          </div>
+          <input type="range" id="sliderH" min="10" max="20" value="15" oninput="onMagicalChange()">
+        </div>
+
+        <div class="side-ctrl-group">
+          <div class="side-ctrl-label">
+            <span>Length (L)</span>
+            <span id="paramValL">10.0m</span>
+          </div>
+          <input type="range" id="sliderL" min="10" max="30" value="10" oninput="onMagicalChange()">
+        </div>
+
+        <div style="font-size:6.5px; color:var(--text-muted); text-align:center; font-family:monospace; border-top:1px solid #1e293b; padding-top:4px;">
+          ⚡ Live Magic Control
+        </div>
+      </div>
+    </div>
+
+    <div class="boq-magical-card">
+      <div class="boq-magical-title">
+        <span>✨ Golden BOQ Spell (ถอดราคาอัตโนมัติ)</span>
+        <span style="color:#38bdf8; font-size:7px;">Real-Time</span>
+      </div>
+      <div class="boq-row-grid">
+        <div class="boq-cell">
+          <div class="boq-lbl">Concrete (m³)</div>
+          <div class="boq-num" id="valConc">8.40</div>
+        </div>
+        <div class="boq-cell">
+          <div class="boq-lbl">Formwork (m²)</div>
+          <div class="boq-num" id="valForm">22.50</div>
+        </div>
+        <div class="boq-cell">
+          <div class="boq-lbl">Rebar (kg)</div>
+          <div class="boq-num" id="valSteel">480.2</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let wallHeight = 1.5;
+    let wallLength = 10.0;
+    let spellsActive = { concrete: true, rebar: true };
+
+    function toggleSpell(name) {
+      spellsActive[name] = !spellsActive[name];
+      document.getElementById('btn' + (name === 'concrete' ? 'Conc' : 'Rebar')).classList.toggle('active', spellsActive[name]);
+      renderMagicalStage();
+    }
+
+    function onMagicalChange() {
+      wallHeight = parseFloat(document.getElementById('sliderH').value) / 10.0;
+      wallLength = parseFloat(document.getElementById('sliderL').value);
+      
+      document.getElementById('paramValH').innerText = `${wallHeight.toFixed(1)}m`;
+      document.getElementById('paramValL').innerText = `${wallLength.toFixed(1)}m`;
+      renderMagicalStage();
+    }
+
+    function renderMagicalStage() {
+      const contentContainer = document.getElementById('stageContent');
+      const dimContainer = document.getElementById('stageDimensions');
+      
+      let scaleH = wallHeight * 22; 
+      let lengthScale = wallLength * 10; 
+
+      let baseW = wallHeight * 20;     
+      let baseThick = Math.max(8, wallHeight * 4.5);  
+      let stemW = Math.max(7, wallHeight * 3.2);     
+
+      let l = lengthScale;
+      let w = baseW;
+
+      // จัดกึ่งกลางสำหรับ Viewport ขนาด 400x320
+      let originX = 200 - (l * 0.866) / 2 + (w * 0.2);
+      let originY = 180;
+
+      let unitConc = (wallHeight * 2.2 + 0.5);
+      let totalConc = (unitConc * (wallLength / 5.0)).toFixed(2);
+      let totalForm = ((wallHeight + 1.2) * wallLength * 1.0).toFixed(2);
+      let totalSteel = (totalConc * 42).toFixed(1); 
+
+      document.getElementById('valConc').innerText = totalConc;
+      document.getElementById('valForm').innerText = totalForm;
+      document.getElementById('valSteel').innerText = totalSteel;
+
+      let svgContent = '';
+      let svgDims = '';
+
+      function isoPt(x, y, z) {
+        return {
+          x: originX + (x - y) * 0.866,
+          y: originY + (x + y) * 0.5 - z
+        };
+      }
+
+      let h = scaleH;
+      let t = baseThick;
+
+      let p0 = isoPt(0, 0, 0);       
+      let p1 = isoPt(w, 0, 0);       
+      let p2 = isoPt(w, 0, t);       
+      let p3 = isoPt(sw, 0, t);      
+      let p4 = isoPt(sw, 0, t + h);  
+      let p5 = isoPt(0, 0, t + h);   
+
+      let q0 = isoPt(0, l, 0);
+      let q1 = isoPt(w, l, 0);
+      let q2 = isoPt(w, l, t);
+      let q3 = isoPt(sw, l, t);
+      let q4 = isoPt(sw, l, t + h);
+      let q5 = isoPt(0, l, t + h);
+
+      if (spellsActive.concrete) {
+        let frontFace = `${p0.x},${p0.y} ${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y} ${p5.x},${p5.y}`;
+        let backFace  = `${q0.x},${q0.y} ${q1.x},${q1.y} ${q2.x},${q2.y} ${q3.x},${q3.y} ${q4.x},${q4.y} ${q5.x},${q5.y}`;
+        let topStem   = `${p5.x},${p5.y} ${p4.x},${p4.y} ${q4.x},${q4.y} ${q5.x},${q5.y}`;
+        let topBase   = `${p3.x},${p3.y} ${p2.x},${p2.y} ${q2.x},${q2.y} ${q3.x},${q3.y}`;
+        let rightBase = `${p1.x},${p1.y} ${p2.x},${p2.y} ${q2.x},${q2.y} ${q1.x},${q1.y}`;
+        let bottomBase= `${p0.x},${p0.y} ${p1.x},${p1.y} ${q1.x},${q1.y} ${q0.x},${q0.y}`;
+        let leftWall  = `${p0.x},${p0.y} ${p5.x},${p5.y} ${q5.x},${q5.y} ${q0.x},${q0.y}`;
+
+        svgContent += `
+          <g id="spell-concrete">
+            <polygon points="${bottomBase}" fill="url(#magicGrad)" stroke="#f59e0b" stroke-width="1" stroke-linejoin="round"/>
+            <polygon points="${backFace}" fill="url(#magicGrad)" stroke="#f59e0b" stroke-width="1" stroke-linejoin="round"/>
+            <polygon points="${topStem}" fill="url(#magicGrad)" stroke="#f59e0b" stroke-width="1.1" stroke-linejoin="round"/>
+            <polygon points="${topBase}" fill="url(#magicGrad)" stroke="#f59e0b" stroke-width="1.1" stroke-linejoin="round"/>
+            <polygon points="${rightBase}" fill="url(#magicGrad)" stroke="#f59e0b" stroke-width="1.1" stroke-linejoin="round"/>
+            <polygon points="${leftWall}" fill="url(#magicGrad)" stroke="#f59e0b" stroke-width="1.1" stroke-linejoin="round"/>
+            <polygon points="${frontFace}" fill="url(#magicGrad)" stroke="#f59e0b" stroke-width="1.5" stroke-linejoin="round"/>
+          </g>
+        `;
+      }
+
+      if (spellsActive.rebar) {
+        let mainColor = "#facc15"; 
+        let distColor = "#fb923c"; 
+        let wireColor = "#e2e8f0"; 
+        
+        let numFrames = Math.max(4, Math.min(8, Math.round(wallLength / 3.5)));
+        let numLayers = 2; 
+        let rebarSvg = `<g id="spell-rebar">`;
+        
+        for(let k = 0; k < numFrames; k++) {
+          let frac = k / (numFrames > 1 ? numFrames - 1 : 1);
+          let curY_pos = frac * l;
+          
+          let footStart = isoPt(8, curY_pos, 2.5);
+          let bendIn = isoPt(6, curY_pos, 2.5);
+          let bendUp = isoPt(4, curY_pos, t + 3);
+          let wallTop = isoPt(4, curY_pos, t + h - 3);
+          
+          rebarSvg += `<path d="M ${footStart.x} ${footStart.y} L ${bendIn.x} ${bendIn.y} Q ${isoPt(4, curY_pos, 2.5).x} ${isoPt(4, curY_pos, 2.5).y} ${bendUp.x} ${bendUp.y} L ${wallTop.x} ${wallTop.y}" fill="none" stroke="${mainColor}" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+          let f_cross1 = isoPt(2, curY_pos, t/2);
+          let f_cross2 = isoPt(w - 4, curY_pos, t/2);
+          rebarSvg += `<line x1="${f_cross1.x}" y1="${f_cross1.y}" x2="${f_cross2.x}" y2="${f_cross2.y}" stroke="${distColor}" stroke-width="0.8"/>`;
+
+          if (k < numFrames - 1) {
+            let nextY_pos = ((k + 1) / (numFrames > 1 ? numFrames - 1 : 1)) * l;
+            
+            let f_long_s = isoPt(6, curY_pos, t/2);
+            let f_long_e = isoPt(6, nextY_pos, t/2);
+            rebarSvg += `<line x1="${f_long_s.x}" y1="${f_long_s.y}" x2="${f_long_e.x}" y2="${f_long_e.y}" stroke="${distColor}" stroke-width="0.8"/>`;
+
+            for (let layer = 0; layer < numLayers; layer++) {
+              let zPos = t + 2.5 + (layer / (numLayers - 1)) * (h - 5);
+              let l_s = isoPt(4, curY_pos, zPos);
+              let l_e = isoPt(4, nextY_pos, zPos);
+              rebarSvg += `<line x1="${l_s.x}" y1="${l_s.y}" x2="${l_e.x}" y2="${l_e.y}" stroke="${distColor}" stroke-width="0.8"/>`;
+              rebarSvg += `<circle cx="${l_s.x}" cy="${l_s.y}" r="0.8" fill="${wireColor}"/>`;
+            }
+          }
+        }
+        rebarSvg += `</g>`;
+        svgContent += rebarSvg;
+      }
+
+      let dimStart = isoPt(0, 0, 0);
+      let dimEnd = isoPt(0, l, 0);
+      svgDims = `
+        <line x1="${dimStart.x}" y1="${dimStart.y + 12}" x2="${dimEnd.x}" y2="${dimEnd.y + 12}" stroke="#38bdf8" stroke-dasharray="2 2" marker-end="url(#arrow)" stroke-width="0.9"/>
+        <text x="${(dimStart.x + dimEnd.x)/2}" y="${(dimStart.y + dimEnd.y)/2 + 19}" fill="#38bdf8" font-size="7.5" font-family="monospace" text-anchor="middle">L = ${wallLength.toFixed(1)}m</text>
+
+        <line x1="${p5.x - 12}" y1="${p5.y}" x2="${p0.x - 12}" y2="${p0.y}" stroke="#94a3b8" stroke-dasharray="2 2" stroke-width="0.9"/>
+        <text x="${p5.x - 18}" y="${(p5.y + p0.y)/2}" fill="#38bdf8" font-size="7.5" font-family="monospace" dominant-baseline="middle" text-anchor="end">H = ${wallHeight.toFixed(1)}m</text>
+      `;
+
+      contentContainer.innerHTML = svgContent;
+      dimContainer.innerHTML = svgDims;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderMagicalStage();
+    });
+  </script>
+</body>
+</html>
